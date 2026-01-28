@@ -109,8 +109,8 @@ def generate_pdf_buffer(info, item_list, tax_included):
     return buffer
 
 # --- Streamlit UI (保持原有穩定運作方法) ---
-st.set_page_config(page_title="專業報價單產生器", layout="wide", page_icon="📄")
-st.title("📄 專業報價單產生器")
+st.set_page_config(page_title="報價單產生器", layout="wide", page_icon="📄")
+st.title("📄 報價單產生器")
 
 if 'quote_items' not in st.session_state:
     st.session_state.quote_items = []
@@ -158,3 +158,4 @@ if st.session_state.quote_items:
                    "phone": phone, "email": email, "date": quote_date.strftime("%Y-%m-%d")}
         pdf = generate_pdf_buffer(payload, st.session_state.quote_items, tax_type == "含稅金額")
         st.download_button("✅ 下載 PDF 報價單", data=pdf, file_name=f"Quotation_{payload['date']}.pdf")
+
