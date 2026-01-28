@@ -6,6 +6,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 import io
 import os
 from datetime import datetime
+import pandas as pd
 
 # --- PDF 產生核心函數 (輸入完全使用字典清單) ---
 def generate_pdf_buffer(info, items, tax_included):
@@ -125,11 +126,18 @@ if st.session_state.items:
     st.write("---")
     st.subheader("📋 報價項目明細")
     
-    # 顯示表格 (從字典取值 i["name"])
-    st.table([
-        {"項目": i["name"], "單價": f"{i['unit_price']:,.0f}", "數量": i["quantity"], "金額": f"{i['amount']:,.0f}"} 
-        for i in st.session_state.items
-    ])
+    # 修正：使用 pandas DataFrame 來顯示表格
+    table_data = []
+    for i in st.session_state.items:
+        table_data.append({
+            "項目": i["name"],
+            "單價": f"NT$ {i['unit_price']:,.0f}",
+            "數量": i["quantity"],
+            "金額": f"NT$ {i['amount']:,.0f}"
+        })
+    
+    df = pd.DataFrame(table_data)
+    st.dataframe(df, use_container_width=True, hide_index=True)
     
     c_btn1, c_btn2 = st.columns([1, 4])
     with c_btn1:
@@ -138,7 +146,14 @@ if st.session_state.items:
             st.rerun()
     with c_btn2:
         # 下載 PDF 按鈕
-        info_payload = {"title": title, "company": company, "tax_id": tax_id, "phone": phone, "email": email, "date": date}
+        info_payload = {
+            "title": title, 
+            "company": company, 
+            "tax_id": tax_id, 
+            "phone": phone, 
+            "email": email, 
+            "date": date
+        }
         pdf_file = generate_pdf_buffer(info_payload, st.session_state.items, tax_type == "含稅金額")
         
         st.download_button(
