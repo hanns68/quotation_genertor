@@ -83,10 +83,10 @@ if 'items' not in st.session_state:
 with st.sidebar:
     st.header("🏢 單位資訊")
     title = st.text_input("報價單標題", "報價單")
-    company = st.text_input("報價公司/人員", "只想創意有限公司")
-    tax_id = st.text_input("統一編號", "50992265")
-    phone = st.text_input("聯絡電話", "02-26011575")
-    email = st.text_input("電子信箱", "hagnotk@gmail.com")
+    company = st.text_input("報價公司/人員", "")
+    tax_id = st.text_input("統一編號", "")
+    phone = st.text_input("聯絡電話", "")
+    email = st.text_input("電子信箱", "@gmail.com")
     date = st.date_input("報價日期", datetime.now()).strftime("%Y-%m-%d")
     tax_type = st.radio("金額類型", ["未稅金額", "含稅金額"])
 
@@ -132,3 +132,4 @@ if st.session_state.items:
         st.download_button("📥 下載 PDF 報價單", data=pdf_file, file_name=f"Quotation_{date}.pdf", mime="application/pdf")
 else:
     st.info("請在上方輸入資料並點擊『新增』來開始建立報價單。")
+
