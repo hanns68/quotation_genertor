@@ -93,11 +93,11 @@ st.title("📄 專業報價單產生器")
 
 with st.sidebar:
     st.header("基本資訊")
-    title = st.text_input("報價單名稱", "新北市原住民族教育資源中心 - 報價單")
-    company = st.text_input("報價公司/人員", "只想創意有限公司")
-    tax_id = st.text_input("統一編號", "50992265")
-    phone = st.text_input("聯絡電話", "02-26011575")
-    email = st.text_input("電子信箱", "hagnotk@gmail.com")
+    title = st.text_input("報價單名稱", "")
+    company = st.text_input("報價公司/人員", "")
+    tax_id = st.text_input("統一編號", "")
+    phone = st.text_input("聯絡電話", "")
+    email = st.text_input("電子信箱", "@gmail.com")
     date = st.date_input("報價日期", datetime.now()).strftime("%Y-%m-%d")
     tax_type = st.radio("金額類型", ["未稅金額", "含稅金額"])
     
@@ -136,4 +136,5 @@ if st.session_state.items:
         data=pdf_fp,
         file_name=f"quote_{date}.pdf",
         mime="application/pdf"
+
     )
