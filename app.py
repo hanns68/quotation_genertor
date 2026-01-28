@@ -9,7 +9,7 @@ from datetime import datetime
 import pandas as pd
 
 # --- PDF 產生核心函數 ---
-def generate_pdf_buffer(info, items, tax_included):
+def generate_pdf_buffer(info, item_list, tax_included):
     """生成 PDF 報價單"""
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
@@ -56,7 +56,7 @@ def generate_pdf_buffer(info, items, tax_included):
     
     # 填充品項
     subtotal = 0
-    for item in items:
+    for item in item_list:
         y -= 20
         c.drawString(55, y, str(item['name']))
         c.drawCentredString(255, y, f"{item['unit_price']:,.0f}")
@@ -82,9 +82,9 @@ def generate_pdf_buffer(info, items, tax_included):
 st.set_page_config(page_title="專業報價單產生器", layout="wide", page_icon="📄")
 st.title("📄 專業報價單產生器")
 
-# 初始化 session state
-if 'items' not in st.session_state:
-    st.session_state.items = []
+# 初始化 session state - 改用 quote_items 避免命名衝突
+if 'quote_items' not in st.session_state:
+    st.session_state.quote_items = []
 
 # 側邊欄設定
 with st.sidebar:
@@ -112,7 +112,7 @@ with col4:
     st.write("##")
     if st.button("➕ 新增項目"):
         if item_name and item_name.strip():
-            st.session_state.items.append({
+            st.session_state.quote_items.append({
                 "name": item_name.strip(),
                 "unit_price": int(item_price),
                 "quantity": int(item_qty),
@@ -123,13 +123,13 @@ with col4:
             st.error("請輸入名稱")
 
 # 顯示項目清單
-if st.session_state.items:
+if st.session_state.quote_items:
     st.write("---")
     st.subheader("📋 報價項目明細")
     
-    # 重點修正：分步驟建立表格資料
+    # 建立表格資料
     table_data = []
-    for idx, item in enumerate(st.session_state.items):
+    for idx, item in enumerate(st.session_state.quote_items):
         row = {
             "編號": idx + 1,
             "項目": item["name"],
@@ -142,7 +142,7 @@ if st.session_state.items:
     # 轉換為 DataFrame
     df = pd.DataFrame(table_data)
     
-    # 格式化顯示（在 DataFrame 建立後才格式化）
+    # 格式化顯示
     df_display = df.copy()
     df_display["單價"] = df_display["單價"].apply(lambda x: f"NT$ {x:,}")
     df_display["金額"] = df_display["金額"].apply(lambda x: f"NT$ {x:,}")
@@ -150,7 +150,7 @@ if st.session_state.items:
     st.dataframe(df_display, use_container_width=True, hide_index=True)
     
     # 計算總額
-    subtotal = sum(item['amount'] for item in st.session_state.items)
+    subtotal = sum(item['amount'] for item in st.session_state.quote_items)
     tax = round(subtotal * 0.05 / 1.05) if tax_type == "含稅金額" else round(subtotal * 0.05)
     total = subtotal if tax_type == "含稅金額" else subtotal + tax
     
@@ -161,7 +161,7 @@ if st.session_state.items:
     
     with col_btn1:
         if st.button("🗑️ 清空清單"):
-            st.session_state.items = []
+            st.session_state.quote_items = []
             st.rerun()
     
     with col_btn2:
@@ -176,7 +176,7 @@ if st.session_state.items:
             }
             pdf_buffer = generate_pdf_buffer(
                 info_payload,
-                st.session_state.items,
+                st.session_state.quote_items,
                 tax_type == "含稅金額"
             )
             
